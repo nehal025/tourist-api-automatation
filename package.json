@@ -1,0 +1,31 @@
+{
+  "name": "tourist-api-automatation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/app.js",
+    "build": "echo 'hello build'"
+  },
+  "author": "Nehal",
+  "license": "ISC",
+  "dependencies": {
+    "@adminjs/express": "^4.0.1",
+    "@adminjs/mongoose": "^2.0.2",
+    "@tensorflow/tfjs-node": "^3.13.0",
+    "adminjs": "^5.5.1",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.1.0",
+    "node-cron": "^3.0.0",
+    "nodemon": "^2.0.15",
+    "puppeteer": "^12.0.1",
+    "request": "^2.88.2",
+    "tslib": "^2.3.1"
+  }
+}
