@@ -64,11 +64,11 @@ const flightScrapper = async (from, to) => {
   await page.click('#ow18 > div.A8nfpe.yRXJAe.iWO5td > div:nth-child(2) > ul > li:nth-child(2)')
 
 
-  await page.focus('#i7 > div.e5F5td.BGeFcf > div > div > div.dvO2xc.k0gFV > div > div > input');
+  await page.focus('#i15 > div.e5F5td.BGeFcf > div > div > div.dvO2xc.k0gFV > div > div > input');
   await page.keyboard.down('Control');
   await page.keyboard.press('A');
   await page.keyboard.up('Control');
-  await page.type('#i7 > div.e5F5td.BGeFcf > div > div > div.dvO2xc.k0gFV > div > div > input', from,{delay: 10})
+  await page.type('#i15 > div.e5F5td.BGeFcf > div > div > div.dvO2xc.k0gFV > div > div > input', from,{delay: 10})
   await page.keyboard.press('Enter');
 
   await page.keyboard.press('Tab');

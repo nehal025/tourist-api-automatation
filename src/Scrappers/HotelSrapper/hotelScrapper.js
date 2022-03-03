@@ -61,7 +61,7 @@ const hotelScrapper = async (locationStr, stars) => {
   var title, img, location, info, rating, reviews, price, star, booknow;
 
 
-  await page.goto('https://www.booking.com/', { waitUntil: 'networkidle2' });
+  await page.goto('https://www.booking.com/');
 
   await page.waitForSelector('#ss');
   await page.type('#ss', locationStr);
