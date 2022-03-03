@@ -1,5 +1,8 @@
-const puppeteer = require("puppeteer");
+const puppeteer = require('puppeteer-extra')
 
+// add stealth plugin and use defaults (all evasion techniques)
+const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+puppeteer.use(StealthPlugin())
 const width = 1024;
 const height = 1600;
 
@@ -41,34 +44,142 @@ const minimal_args = [
   '--use-mock-keychain',
 ];
 
-const hotelScrapper = async (locationStr, stars) => {
+const flightScrapper = async (from, to) => {
 
 
   const browser = await puppeteer.launch({
     'defaultViewport': { 'width': width, 'height': height },
     ignoreDefaultArgs: ['--enable-automation'],
-    args: ['disable-gpu', '--disable-infobars', '--disable-extensions', '--ignore-certificate-errors'],
+    args:minimal_args,
     headless: true
   });
 
   const page = await browser.newPage();
-  await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
+  // await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
+
+  await page.goto('https://www.google.com/travel/flights/');
+
+  await page.waitForSelector('#yDmH0d > c-wiz.zQTmif.SSPGKf > div > div:nth-child(2) > c-wiz > div > c-wiz > c-wiz > div.Me3Qzc > div:nth-child(1) > div.SS6Dqf > div.ZqIz0.RIpLRb > div.Maqf5d > div.RLVa8.GeHXyb > div > div.v0tSxb.SOcuWe > div.dvO2xc.k0gFV > div > button')
+  await page.click('#yDmH0d > c-wiz.zQTmif.SSPGKf > div > div:nth-child(2) > c-wiz > div > c-wiz > c-wiz > div.Me3Qzc > div:nth-child(1) > div.SS6Dqf > div.ZqIz0.RIpLRb > div.Maqf5d > div.RLVa8.GeHXyb > div > div.v0tSxb.SOcuWe > div.dvO2xc.k0gFV > div > button')
+  await page.click('#ow18 > div.A8nfpe.yRXJAe.iWO5td > div:nth-child(2) > ul > li:nth-child(2)')
+
+
+  await page.focus('#i7 > div.e5F5td.BGeFcf > div > div > div.dvO2xc.k0gFV > div > div > input');
+  await page.keyboard.down('Control');
+  await page.keyboard.press('A');
+  await page.keyboard.up('Control');
+  await page.type('#i7 > div.e5F5td.BGeFcf > div > div > div.dvO2xc.k0gFV > div > div > input', from,{delay: 10})
+  await page.keyboard.press('Enter');
+
+  await page.keyboard.press('Tab');
+
+  await page.keyboard.type(to)
+  await page.keyboard.press('Enter')
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter')
+
+  await page.keyboard.press('Enter')
+
+ 
 
   let dataObj = [];
-  var title, img, location, info, rating, reviews, price, star, booknow;
-
-
-  await page.goto('https://www.makemytrip.com/flights/', { waitUntil: 'networkidle2' });
-
-//   await page.waitForSelector('#ss');
-//   await page.type('#ss', locationStr);
-
-//   await page.click('#frm > div.xp__fieldset.js--sb-fieldset.accommodation > div.xp__dates.xp__group > div.xp__dates-inner');
-
-
+  var title, img, cost, time;
+  var count=0;
   try {
 
+    await page.waitForSelector('div[role="listitem"]');
 
+    const productsHandles = await page.$$(' div[class="mz0jqb taHBqe Qpcsfe"]');
+    for (const producthandle of productsHandles) {
+
+      try {
+        title = await page.evaluate(
+          (el) => el.querySelector('div.KC3CM > div.mxvQLc.ceis6c.uj4xv.uVdL1c.A8qKrc > div.OgQvJf.nKlB3b > div.Ir0Voe > div.TQqf0e.sSHqwe.tPgKwe.ogfYpf > span').textContent,
+          producthandle
+        );
+      } catch (error) {
+        title = null
+      }
+      try {
+        img = await page.evaluate(
+          (el) => el.querySelector(' div.KC3CM > div.mxvQLc.ceis6c.uj4xv.uVdL1c.A8qKrc > div.OgQvJf.nKlB3b > div.x8klId.I11szd > img').getAttribute('src'),
+          producthandle
+        );
+        Promise.all([img]).then((values) => {
+          img = img.replace('//', 'https://')
+
+
+        });
+      } catch (error) {
+        img = null
+      }
+
+      try {
+        cost = await page.evaluate(
+          (el) => el.querySelector('div.KC3CM > div.mxvQLc.ceis6c.uj4xv.uVdL1c.A8qKrc > div.OgQvJf.nKlB3b > div.U3gSDe > div.BVAVmf.I11szd.POX3ye > div.YMlIz.FpEdX > span').textContent,
+          producthandle
+        );
+
+        Promise.all([cost]).then((values) => {
+          
+          if (cost.charAt(0) === '₹') {
+            cost=cost.replace('₹','');
+            cost=cost.replace(',','');
+            cost=cost.trim()
+            cost=parseInt(cost)
+          }else{
+            cost = cost.replace('$', '')
+            cost = cost.trim()
+            cost = Number(cost)
+            cost = cost * 70
+          }
+  
+          
+  
+  
+        });
+      } catch (error) {
+        cost = null
+      }
+
+      try {
+        depTime = await page.evaluate(
+          (el) => el.querySelector(' div.zxVSec.YMlIz.tPgKwe.ogfYpf > span > span:nth-child(1) > span > span > span').textContent,
+          producthandle
+        );
+      } catch (error) {
+        depTime = null
+      }
+
+      try {
+        arrTime = await page.evaluate(
+          (el) => el.querySelector('div.zxVSec.YMlIz.tPgKwe.ogfYpf > span > span:nth-child(2) > span > span > span').textContent,
+          producthandle
+        );
+      } catch (error) {
+        arrTime = null
+      }
+      Promise.all([depTime, arrTime]).then((values) => {
+        time = depTime + ' - ' + arrTime
+
+      });
+
+      if (cost && title && time && img) {
+        if(count<=4){
+          dataObj.push(
+            {
+              title,
+              img,
+              cost,
+              time
+            }
+          );
+          count++
+        }
+  
+      }
+
+    }
 
   } catch (e) {
     console.log(e);
@@ -76,10 +187,10 @@ const hotelScrapper = async (locationStr, stars) => {
 
   // console.log(dataObj)
 
-  browser.close();
+  await browser.close();
 
   return dataObj;
 
 };
 
-module.exports = hotelScrapper;
+module.exports = flightScrapper;

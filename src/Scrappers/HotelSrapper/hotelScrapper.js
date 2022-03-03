@@ -1,5 +1,8 @@
-const puppeteer = require("puppeteer");
+const puppeteer = require('puppeteer-extra')
 
+// add stealth plugin and use defaults (all evasion techniques)
+const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+puppeteer.use(StealthPlugin())
 const width = 1024;
 const height = 1600;
 
@@ -52,7 +55,7 @@ const hotelScrapper = async (locationStr, stars) => {
   });
 
   const page = await browser.newPage();
-  await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
+   await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
 
   let dataObj = [];
   var title, img, location, info, rating, reviews, price, star, booknow;

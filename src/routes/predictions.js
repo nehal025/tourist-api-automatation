@@ -1,46 +1,152 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-// const tf = require('@tensorflow/tfjs');
-const tf= require('@tensorflow/tfjs-node');
+
+
+const tf = require("@tensorflow/tfjs-node");
+
 const priceHotelScrapper = require("../Scrappers/HotelSrapper/priceHotelScrapper");
+const flightScrapper = require("../Scrappers/flightScrapper");
+const trainScrapper = require("../Scrappers/trainScrapper");
 
-router.get('/', async (req, res) => {
 
-    const { day, person, star, location } = req.query
+router.get("/", async (req, res) => {
+
+    const { day, person, star, fromCity, fromDist, toCity, toDist, flightBool, trainBool } = req.query;
 
     var hotels;
-    var travelOptions = {}
-    var sum = 0;
+    var flight;
+    var train;
+
+    var hotelCostSum = 0;
+    var flightCostSum = 0;
+    var trainCostSum = 0;
+
     var hotelsAvgCost = 0;
-    var travelAvgCost = 0;
-    var count = 0;
+    var flightAvgCost = 0;
+    var trainAvgCost = 0;
 
-    const op = priceHotelScrapper(location, star).then(dataObj => {
-        hotels = dataObj
-
-        dataObj.map(value => {
-            sum = sum + value.price;
-            count++;
-        });
+    var hotelCount = 0;
+    var flightCount = 0;
+    var trainCount = 0;
 
 
-    }).catch(console.error)
+    const model = await tf.loadLayersModel("file://src/ml/model.json");
+    inputTensor = tf.tensor([[parseInt(day), parseInt(person)]]);
+    mlOutput = model.predict(inputTensor);
+    var livingCost = parseInt(mlOutput.dataSync()[0]);
 
+    
+    try {
+        const hotelOutput = priceHotelScrapper(toCity, star)
+            .then((dataObj) => {
+                hotels = dataObj;
 
-    const model = await tf.loadLayersModel('file://src/ml/model.json');
-    inputTensor = tf.tensor([[parseInt(day), parseInt(person)]])
-    output = model.predict(inputTensor)
-    var livingCost = parseInt(output.dataSync()[0])
+                dataObj.map((value) => {
+                    hotelCostSum = hotelCostSum + value.price;
+                    hotelCount++;
+                });
+            })
+            .catch(console.error);
 
-
-    Promise.all([op, output]).then((values) => {
-        hotelsAvgCost = parseInt(sum / count);
-        let totalCost = livingCost + hotelsAvgCost  +travelAvgCost
        
 
-        res.json({ day, person, totalCost, livingCost, hotelsAvgCost, hotels, travelAvgCost, travelOptions })
-    });
+            if (flightBool) {
+
+                var flightOutput = flightScrapper(fromCity + " india", toCity + " india")
+                    .then((dataObj) => {
+                        flight = dataObj;
+
+                        dataObj.map((value) => {
+                            flightCostSum = flightCostSum + value.cost;
+                            flightCount++;
+                        });
+                    })
+                    .catch(console.error);
+
+
+            }
+
+            if (trainBool) {
+
+                var trainOutput = trainScrapper(fromCity, toCity)
+                    .then((dataObj) => {
+                        train = dataObj;
+
+                        dataObj.map((value) => {
+                            trainCostSum = trainCostSum + value.cost;
+                            trainCount++;
+                        });
+                    })
+                    .catch(console.error);
+
+
+        
+            }
+
+            if (flightBool) {
+                Promise.all([hotelOutput, flightOutput, mlOutput]).then((values) => {
+        
+                    hotelsAvgCost = parseInt(hotelCostSum / hotelCount);
+                    flightAvgCost = parseInt(flightCostSum / flightCount);
+        
+                    let totalCost = livingCost + hotelsAvgCost + flightAvgCost;
+        
+                    res.json({
+                        day,
+                        person,
+                        totalCost,
+                        livingCost,
+                        hotelsAvgCost,
+                        hotels,
+                        flightAvgCost,
+                        flight,
+                    });
+        
+        
+        
+                });
+            }
+        
+            if (trainBool) {
+        
+                Promise.all([hotelOutput, trainOutput, mlOutput]).then((values) => {
+        
+                    hotelsAvgCost = parseInt(hotelCostSum / hotelCount);
+                    trainAvgCost = parseInt(trainCostSum / trainCount);
+        
+                    let totalCost = livingCost + hotelsAvgCost + trainAvgCost;
+        
+                    res.json({
+                        day,
+                        person,
+                        totalCost,
+                        livingCost,
+                        hotelsAvgCost,
+                        hotels,
+                        trainAvgCost,
+                        train,
+                    });
+        
+                });
+            }
+       
+
+    } catch (error) {
+
+ 
+    }
+
+
+
+
+
+
+
+
+   
+
 
 });
+
 
 module.exports = router;

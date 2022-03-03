@@ -58,6 +58,15 @@ app.use('/predictions', predictions);
 const adminRouter = require('./routes/admin.router');
 app.use('/admin', adminRouter);
 
+
+app.use(function(req, res, next){
+    res.setTimeout(120000, function(){
+        console.log('Request has timed out.');
+            res.send(408);
+        });
+
+    next();
+});
 // Starting server
 app.listen(port, console.log(`Listening on port ${port}`));
 

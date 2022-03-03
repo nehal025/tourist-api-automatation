@@ -1,4 +1,8 @@
-const puppeteer = require("puppeteer");
+const puppeteer = require('puppeteer-extra')
+
+// add stealth plugin and use defaults (all evasion techniques)
+const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+puppeteer.use(StealthPlugin())
 
 const width = 1024;
 const height = 1600;
@@ -43,19 +47,22 @@ const minimal_args = [
 
 const hotelScrapper = async (locationStr, stars) => {
 
-    var sum=0;var avg=0;
+  var sum = 0; var avg = 0;
 
 
   const browser = await puppeteer.launch({
     'defaultViewport': { 'width': width, 'height': height },
     ignoreDefaultArgs: ['--enable-automation'],
-    args:minimal_args,
+    args: minimal_args,
     headless: true
+
   });
 
   const page = await browser.newPage();
   await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
-
+  await page.setExtraHTTPHeaders({
+    'Accept-Language': 'en-US,en;q=0.9'
+  });
   let dataObj = [];
   var title, img, location, info, rating, reviews, price, star, booknow;
 
@@ -147,24 +154,25 @@ const hotelScrapper = async (locationStr, stars) => {
 
         Promise.all([price]).then((values) => {
 
-          if(price.charAt(0)==='₹'){
-            price=price.replace('₹','');
-            price=price.replace(',','');
-            price=price.trim()
-            price=Number(price)
-          }else{
-            price=price.replace('$','')
-            price=price.trim()
-            price=Number(price)
+          if (price.charAt(0) === '₹') {
+            price = price.replace('₹', '');
+            price = price.replace(',', '');
+            price = price.trim()
+            price = Number(price)
+          } else {
+            price = price.replace('$', '')
+            price = price.trim()
+            price = Number(price)
+            price = price * 70
           }
-       
-      
+
+
         });
 
-        
+
 
       } catch (error) {
-        price = "null"
+        price = null
       }
 
       try {
@@ -187,8 +195,9 @@ const hotelScrapper = async (locationStr, stars) => {
 
       try {
         if (stars.includes(star)) {
+          
           dataObj.push(
-            {  
+            {
               title,
               img,
               location,
@@ -204,7 +213,7 @@ const hotelScrapper = async (locationStr, stars) => {
       } catch (error) {
         dataObj.push(
           {
-             
+
             title,
             img,
             location,
