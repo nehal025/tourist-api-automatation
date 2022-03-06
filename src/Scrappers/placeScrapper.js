@@ -44,19 +44,31 @@ const minimal_args = [
 ];
 
 const placeScrapper = async locationStr => {
+  try {
 
-  const browser = await puppeteer.launch({
-    'defaultViewport': { 'width': width, 'height': height },
-    ignoreDefaultArgs: ['--enable-automation'],
-    args: minimal_args,
-    headless: true
+    const browser = await puppeteer.launch({
+      'defaultViewport': { 'width': width, 'height': height },
+      ignoreDefaultArgs: ['--enable-automation'],
+      args: minimal_args,
+      headless: true
 
-  });
+    });
 
-  const page = await browser.newPage();
+    const page = await browser.newPage();
+    await page.setRequestInterception(true);
 
-     await page.goto('https://www.google.com/travel/');
-     await page.type('#oA4zhb', locationStr);
+
+    page.on('request', (req) => {
+
+      if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
+        req.abort();
+      } else {
+        req.continue();
+      }
+
+    });
+    await page.goto('https://www.google.com/travel/');
+    await page.type('#oA4zhb', locationStr);
 
     await Promise.all([
       page.keyboard.press('Enter'),
@@ -65,64 +77,65 @@ const placeScrapper = async locationStr => {
 
     await page.waitForSelector('.sUF6Ec .kQb6Eb');
 
-  
+
     let dataObj = [];
-    var title, img,  info,location;
-    try {
-     
-      await page.waitForSelector('.f4hh3d');
-  
-      const productsHandles = await page.$$('.f4hh3d');
-      for (const producthandle of productsHandles) {
-  
-        try {
-          title = await page.evaluate(
-            (el) => el.querySelector(' .rbj0Ud').textContent,
-            producthandle
-          );
-        } catch (error) {
-          title = "null"
-        }
-  
-        try {
-          img = await page.evaluate(
-            (el) => el.querySelector(' div.kXlUEb > easy-img > img[class="R1Ybne YH2pd"]').getAttribute('src'),
-            producthandle
-          );
-        } catch (error) {
-          img = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fdepositphotos.com%2Fvector-images%2Fno-image-available.html&psig=AOvVaw3-AqsT5YELbntN9ZchkiYI&ust=1641343482369000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCJDTz4rvlvUCFQAAAAAdAAAAABAD"
-        }
-  
-        try {
-          info = await page.evaluate(
-            (el) => el.querySelector('.nFoFM').textContent,
-            producthandle
-          );
-        } catch (error) {
-          info = locationStr
-        }
-     
-          location = locationStr
-  
-        dataObj.push(
-          {
-            title,
-            img,
-            info,
-            location
-          }
+    var title, img, info, location;
+
+
+    await page.waitForSelector('.f4hh3d');
+
+    const productsHandles = await page.$$('.f4hh3d');
+    for (const producthandle of productsHandles) {
+
+      try {
+        title = await page.evaluate(
+          (el) => el.querySelector(' .rbj0Ud').textContent,
+          producthandle
         );
+      } catch (error) {
+        title = "null"
       }
-  
-    } catch (e) {
-      console.log(e);
+
+      try {
+        img = await page.evaluate(
+          (el) => el.querySelector(' div.kXlUEb > easy-img > img[class="R1Ybne YH2pd"]').getAttribute('src'),
+          producthandle
+        );
+      } catch (error) {
+        img = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fdepositphotos.com%2Fvector-images%2Fno-image-available.html&psig=AOvVaw3-AqsT5YELbntN9ZchkiYI&ust=1641343482369000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCJDTz4rvlvUCFQAAAAAdAAAAABAD"
+      }
+
+      try {
+        info = await page.evaluate(
+          (el) => el.querySelector('.nFoFM').textContent,
+          producthandle
+        );
+      } catch (error) {
+        info = locationStr
+      }
+
+      location = locationStr
+
+      dataObj.push(
+        {
+          title,
+          img,
+          info,
+          location
+        }
+      );
     }
-    // console.log(dataObj)
+    browser.close();
+
+    return dataObj;
+
+  } catch (e) {
+    console.log(e);
+  }
+  // console.log(dataObj)
   // console.log(dataObj)
 
-   browser.close();
 
-  return dataObj;
 
 };
 

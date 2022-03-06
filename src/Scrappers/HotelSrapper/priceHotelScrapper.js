@@ -49,50 +49,64 @@ const hotelScrapper = async (locationStr, stars) => {
 
   var sum = 0; var avg = 0;
 
-
-  const browser = await puppeteer.launch({
-    'defaultViewport': { 'width': width, 'height': height },
-    ignoreDefaultArgs: ['--enable-automation'],
-    args: minimal_args,
-    headless: true
-
-  });
-
-  const page = await browser.newPage();
-  await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
-  await page.setExtraHTTPHeaders({
-    'Accept-Language': 'en-US,en;q=0.9'
-  });
-  let dataObj = [];
-  var title, img, location, info, rating, reviews, price, star, booknow;
-
-
-  await page.goto('https://www.booking.com/');
-
-  await page.waitForSelector('#ss');
-  await page.type('#ss', locationStr);
-
-  await page.click('#frm > div.xp__fieldset.js--sb-fieldset.accommodation > div.xp__dates.xp__group > div.xp__dates-inner');
-
-
-  var d = new Date(),
-    month = '' + (d.getMonth() + 1),
-    day = '' + d.getDate(),
-    year = d.getFullYear();
-
-  if (month.length < 2)
-    month = '0' + month;
-  if (day.length < 2)
-    day = '0' + day;
-
-  var currentDate = [year, month, day].join('-');
-
-  // console.log(currentDate)
-
-  await page.click(`  #frm > div.xp__fieldset.js--sb-fieldset.accommodation > div.xp__dates.xp__group > div.xp-calendar > div > div > div.bui-calendar__content > div > table > tbody > tr > td[data-date="${currentDate}"]`);
-  await page.click(`#frm > div.xp__fieldset.js--sb-fieldset.accommodation > div.xp__button > div.sb-searchbox-submit-col.-submit-button > button`);
-
   try {
+
+
+    const browser = await puppeteer.launch({
+      'defaultViewport': { 'width': width, 'height': height },
+      ignoreDefaultArgs: ['--enable-automation'],
+      args: minimal_args,
+      headless: true
+
+    });
+
+    const page = await browser.newPage();
+    await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'en-US,en;q=0.9'
+    });
+    await page.setRequestInterception(true);
+
+
+    page.on('request', (req) => {
+
+      if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
+        req.abort();
+      } else {
+        req.continue();
+      }
+
+    });
+    let dataObj = [];
+    var title, img, location, info, rating, reviews, price, star, booknow;
+
+
+    await page.goto('https://www.booking.com/');
+
+    await page.waitForSelector('#ss');
+    await page.type('#ss', locationStr);
+
+    await page.click('#frm > div.xp__fieldset.js--sb-fieldset.accommodation > div.xp__dates.xp__group > div.xp__dates-inner');
+
+
+    var d = new Date(),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2)
+      month = '0' + month;
+    if (day.length < 2)
+      day = '0' + day;
+
+    var currentDate = [year, month, day].join('-');
+
+    // console.log(currentDate)
+
+    await page.click(`  #frm > div.xp__fieldset.js--sb-fieldset.accommodation > div.xp__dates.xp__group > div.xp-calendar > div > div > div.bui-calendar__content > div > table > tbody > tr > td[data-date="${currentDate}"]`);
+    await page.click(`#frm > div.xp__fieldset.js--sb-fieldset.accommodation > div.xp__button > div.sb-searchbox-submit-col.-submit-button > button`);
+
+
 
     await page.waitForSelector('#search_results_table > div:nth-child(1) > div > div > div > div._814193827 > div[class="_fe1927d9e _0811a1b54 _a8a1be610 _022ee35ec b9c27d6646 fb3c4512b4 fc21746a73"]');
     const productsHandles = await page.$$('#search_results_table > div:nth-child(1) > div > div > div > div._814193827 > div[class="_fe1927d9e _0811a1b54 _a8a1be610 _022ee35ec b9c27d6646 fb3c4512b4 fc21746a73"]');
@@ -195,7 +209,7 @@ const hotelScrapper = async (locationStr, stars) => {
 
       try {
         if (stars.includes(star)) {
-          
+
           dataObj.push(
             {
               title,
@@ -230,6 +244,9 @@ const hotelScrapper = async (locationStr, stars) => {
 
 
     }
+    browser.close();
+
+    return dataObj;
 
   } catch (e) {
     console.log(e);
@@ -237,9 +254,7 @@ const hotelScrapper = async (locationStr, stars) => {
 
   // console.log(dataObj)
 
-  browser.close();
 
-  return dataObj;
 
 };
 

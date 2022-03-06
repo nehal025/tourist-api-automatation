@@ -35,9 +35,9 @@ router.get('/', async (req, res) => {
 router.get('/live', async (req, res) => {
 
 	const { star, location } = req.query
-	
-	
 
+
+	if(location){
 		hotelScrapper(location,star).then(dataObj => {
 
 		
@@ -46,7 +46,9 @@ router.get('/live', async (req, res) => {
 		
 	
 	
-
+	}else{
+		res.send("pls give location");
+	}
 
 });
 

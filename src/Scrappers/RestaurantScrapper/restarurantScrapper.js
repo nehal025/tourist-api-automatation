@@ -44,38 +44,51 @@ const minimal_args = [
 ];
 
 const liveRestarurantScrapper = async locationStr => {
-
-  const browser = await puppeteer.launch({
-    'defaultViewport': { 'width': width, 'height': height },
-    ignoreDefaultArgs: ['--enable-automation'],
-    args: minimal_args,
-    headless: true
-
-  });
-
-  const page = await browser.newPage();  
-  await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
-
-  let dataObj = [];
-  var title, img, location, info, rating, bookNow;
-
-
-  await page.goto('https://www.swiggy.com/');
-
-  await page.waitForSelector('#location')
-  await page.click('#location')
-  await page.type('#location',locationStr)
-
-  await page.keyboard.press('Enter');
-
-  await page.waitForSelector('#root > div._3arMG > div.nDVxx > div > div._1TWur > div._2COmU > div > div._3mZgT > div > div._1oLDb > div._3lmRa');
-  await page.click('#root > div._3arMG > div.nDVxx > div > div._1TWur > div._2COmU > div > div._3mZgT > div > div._1oLDb > div._3lmRa', { visible: true })
-  
-  await page.waitForSelector('#all_restaurants > div._10p2- > div.k4axS > div > div > div > div._3Ynv- > div._2-ofZ._3hfyI');
-  await page.click(' #all_restaurants > div._10p2- > div.k4axS > div > div > div > div._3Ynv- > div._2-ofZ._3hfyI')
-
-
   try {
+
+
+    const browser = await puppeteer.launch({
+      'defaultViewport': { 'width': width, 'height': height },
+      ignoreDefaultArgs: ['--enable-automation'],
+      args: minimal_args,
+      headless: true
+
+    });
+
+    const page = await browser.newPage();
+    await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
+    await page.setRequestInterception(true);
+
+
+    page.on('request', (req) => {
+
+      if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
+        req.abort();
+      } else {
+        req.continue();
+      }
+
+    });
+    let dataObj = [];
+    var title, img, location, info, rating, bookNow;
+
+
+    await page.goto('https://www.swiggy.com/');
+
+    await page.waitForSelector('#location')
+    await page.click('#location')
+    await page.type('#location', locationStr)
+
+    await page.keyboard.press('Enter');
+
+    await page.waitForSelector('#root > div._3arMG > div.nDVxx > div > div._1TWur > div._2COmU > div > div._3mZgT > div > div._1oLDb > div._3lmRa');
+    await page.click('#root > div._3arMG > div.nDVxx > div > div._1TWur > div._2COmU > div > div._3mZgT > div > div._1oLDb > div._3lmRa', { visible: true })
+
+    await page.waitForSelector('#all_restaurants > div._10p2- > div.k4axS > div > div > div > div._3Ynv- > div._2-ofZ._3hfyI');
+    await page.click(' #all_restaurants > div._10p2- > div.k4axS > div > div > div > div._3Ynv- > div._2-ofZ._3hfyI')
+
+
+
 
     await page.waitForSelector('#all_restaurants > div > div._2GhU5 > div > div > div > div[class="_3XX_A"]');
 
@@ -127,8 +140,8 @@ const liveRestarurantScrapper = async locationStr => {
       } catch (error) {
         bookNow = 'https://www.swiggy.com'
       }
-      
-      location=locationStr;
+
+      location = locationStr;
 
       if (title && img) {
         dataObj.push(
@@ -145,14 +158,16 @@ const liveRestarurantScrapper = async locationStr => {
 
     }
 
+    browser.close();
+
+    return dataObj;
+
   } catch (e) {
     console.log(e);
   }
   // console.log(dataObj)
 
-   browser.close();
 
-  return dataObj;
 
 };
 

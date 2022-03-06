@@ -47,7 +47,7 @@ const minimal_args = [
 ];
 
 const tarinsScrapper = async (from, to) => {
-
+  try {
 
   const browser = await puppeteer.launch({
     'defaultViewport': { 'width': width, 'height': height },
@@ -58,7 +58,18 @@ const tarinsScrapper = async (from, to) => {
 
   const page = await browser.newPage();
   await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
+  await page.setRequestInterception(true);
 
+
+  page.on('request', (req) => {
+
+    if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
+      req.abort();
+    } else {
+      req.continue();
+    }
+ 
+  });
 
   await page.goto(pageURL);
   await page.waitForSelector('#mat-input-3')
@@ -73,7 +84,7 @@ const tarinsScrapper = async (from, to) => {
   let dataObj = [];
   var count=0;
   var title, img, cost, time;
-  try {
+  
 
     await page.waitForSelector('#wrapper-content > main > trainlist > div.p-lg-3.bg-light.card-container.pt-3 > div[class="card border-top horizontal-box box-shadow ng-star-inserted"]')
 
@@ -174,7 +185,10 @@ const tarinsScrapper = async (from, to) => {
   
   
 
-  
+      await browser.close();
+
+      return dataObj;
+    
   
     }
 
@@ -184,10 +198,7 @@ const tarinsScrapper = async (from, to) => {
 
   // console.log(dataObj)
 
-  await browser.close();
-
-  return dataObj;
-
+ 
 };
 
 module.exports = tarinsScrapper;

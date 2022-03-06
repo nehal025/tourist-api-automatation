@@ -46,46 +46,58 @@ const minimal_args = [
 
 const flightScrapper = async (from, to) => {
 
-
-  const browser = await puppeteer.launch({
-    'defaultViewport': { 'width': width, 'height': height },
-    ignoreDefaultArgs: ['--enable-automation'],
-    args:minimal_args,
-    headless: true
-  });
-
-  const page = await browser.newPage();
-  // await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
-
-  await page.goto('https://www.google.com/travel/flights/');
-
-  await page.waitForSelector('#yDmH0d > c-wiz.zQTmif.SSPGKf > div > div:nth-child(2) > c-wiz > div > c-wiz > c-wiz > div.Me3Qzc > div:nth-child(1) > div.SS6Dqf > div.ZqIz0.RIpLRb > div.Maqf5d > div.RLVa8.GeHXyb > div > div.v0tSxb.SOcuWe > div.dvO2xc.k0gFV > div > button')
-  await page.click('#yDmH0d > c-wiz.zQTmif.SSPGKf > div > div:nth-child(2) > c-wiz > div > c-wiz > c-wiz > div.Me3Qzc > div:nth-child(1) > div.SS6Dqf > div.ZqIz0.RIpLRb > div.Maqf5d > div.RLVa8.GeHXyb > div > div.v0tSxb.SOcuWe > div.dvO2xc.k0gFV > div > button')
-  await page.click('#ow18 > div.A8nfpe.yRXJAe.iWO5td > div:nth-child(2) > ul > li:nth-child(2)')
-
-
-  await page.focus('#i15 > div.e5F5td.BGeFcf > div > div > div.dvO2xc.k0gFV > div > div > input');
-  await page.keyboard.down('Control');
-  await page.keyboard.press('A');
-  await page.keyboard.up('Control');
-  await page.type('#i15 > div.e5F5td.BGeFcf > div > div > div.dvO2xc.k0gFV > div > div > input', from,{delay: 10})
-  await page.keyboard.press('Enter');
-
-  await page.keyboard.press('Tab');
-
-  await page.keyboard.type(to)
-  await page.keyboard.press('Enter')
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('Enter')
-
-  await page.keyboard.press('Enter')
-
- 
-
-  let dataObj = [];
-  var title, img, cost, time;
-  var count=0;
   try {
+
+    const browser = await puppeteer.launch({
+      'defaultViewport': { 'width': width, 'height': height },
+      ignoreDefaultArgs: ['--enable-automation'],
+      args: minimal_args,
+      headless: true
+    });
+
+    const page = await browser.newPage();
+    // await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
+    await page.setRequestInterception(true);
+
+
+    page.on('request', (req) => {
+
+      if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
+        req.abort();
+      } else {
+        req.continue();
+      }
+
+    });
+    await page.goto('https://www.google.com/travel/flights/');
+
+    await page.waitForSelector('#yDmH0d > c-wiz.zQTmif.SSPGKf > div > div:nth-child(2) > c-wiz > div > c-wiz > c-wiz > div.Me3Qzc > div:nth-child(1) > div.SS6Dqf > div.ZqIz0.RIpLRb > div.Maqf5d > div.RLVa8.GeHXyb > div > div.v0tSxb.SOcuWe > div.dvO2xc.k0gFV > div > button')
+    await page.click('#yDmH0d > c-wiz.zQTmif.SSPGKf > div > div:nth-child(2) > c-wiz > div > c-wiz > c-wiz > div.Me3Qzc > div:nth-child(1) > div.SS6Dqf > div.ZqIz0.RIpLRb > div.Maqf5d > div.RLVa8.GeHXyb > div > div.v0tSxb.SOcuWe > div.dvO2xc.k0gFV > div > button')
+    await page.click('#ow18 > div.A8nfpe.yRXJAe.iWO5td > div:nth-child(2) > ul > li:nth-child(2)')
+
+
+    await page.focus('#i15 > div.e5F5td.BGeFcf > div > div > div.dvO2xc.k0gFV > div > div > input');
+    await page.keyboard.down('Control');
+    await page.keyboard.press('A');
+    await page.keyboard.up('Control');
+    await page.type('#i15 > div.e5F5td.BGeFcf > div > div > div.dvO2xc.k0gFV > div > div > input', from, { delay: 10 })
+    await page.keyboard.press('Enter');
+
+    await page.keyboard.press('Tab');
+
+    await page.keyboard.type(to)
+    await page.keyboard.press('Enter')
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter')
+
+    await page.keyboard.press('Enter')
+
+
+
+    let dataObj = [];
+    var title, img, cost, time;
+    var count = 0;
+
 
     await page.waitForSelector('div[role="listitem"]');
 
@@ -121,22 +133,22 @@ const flightScrapper = async (from, to) => {
         );
 
         Promise.all([cost]).then((values) => {
-          
+
           if (cost.charAt(0) === '₹') {
-            cost=cost.replace('₹','');
-            cost=cost.replace(',','');
-            cost=cost.trim()
-            cost=parseInt(cost)
-          }else{
+            cost = cost.replace('₹', '');
+            cost = cost.replace(',', '');
+            cost = cost.trim()
+            cost = parseInt(cost)
+          } else {
             cost = cost.replace('$', '')
             cost = cost.trim()
             cost = Number(cost)
             cost = cost * 70
           }
-  
-          
-  
-  
+
+
+
+
         });
       } catch (error) {
         cost = null
@@ -165,7 +177,7 @@ const flightScrapper = async (from, to) => {
       });
 
       if (cost && title && time && img) {
-        if(count<=4){
+        if (count <= 4) {
           dataObj.push(
             {
               title,
@@ -176,10 +188,14 @@ const flightScrapper = async (from, to) => {
           );
           count++
         }
-  
+
       }
 
     }
+    await browser.close();
+
+    return dataObj;
+
 
   } catch (e) {
     console.log(e);
@@ -187,9 +203,6 @@ const flightScrapper = async (from, to) => {
 
   // console.log(dataObj)
 
-  await browser.close();
-
-  return dataObj;
 
 };
 
