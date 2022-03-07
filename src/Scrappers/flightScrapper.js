@@ -1,5 +1,5 @@
 const puppeteer = require('puppeteer-extra')
-
+const headless = require('./headless')
 // add stealth plugin and use defaults (all evasion techniques)
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
@@ -52,23 +52,23 @@ const flightScrapper = async (from, to) => {
       'defaultViewport': { 'width': width, 'height': height },
       ignoreDefaultArgs: ['--enable-automation'],
       args: minimal_args,
-      headless: true
+      headless: headless.headless
     });
 
     const page = await browser.newPage();
     // await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
-    await page.setRequestInterception(true);
+    // await page.setRequestInterception(true);
 
 
-    page.on('request', (req) => {
+    // page.on('request', (req) => {
 
-      if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
-        req.abort();
-      } else {
-        req.continue();
-      }
+    //   if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
+    //     req.abort();
+    //   } else {
+    //     req.continue();
+    //   }
 
-    });
+    // });
     await page.goto('https://www.google.com/travel/flights/');
 
     await page.waitForSelector('#yDmH0d > c-wiz.zQTmif.SSPGKf > div > div:nth-child(2) > c-wiz > div > c-wiz > c-wiz > div.Me3Qzc > div:nth-child(1) > div.SS6Dqf > div.ZqIz0.RIpLRb > div.Maqf5d > div.RLVa8.GeHXyb > div > div.v0tSxb.SOcuWe > div.dvO2xc.k0gFV > div > button')
@@ -80,12 +80,12 @@ const flightScrapper = async (from, to) => {
     await page.keyboard.down('Control');
     await page.keyboard.press('A');
     await page.keyboard.up('Control');
-    await page.type('#i15 > div.e5F5td.BGeFcf > div > div > div.dvO2xc.k0gFV > div > div > input', from, { delay: 10 })
+    await page.type('#i15 > div.e5F5td.BGeFcf > div > div > div.dvO2xc.k0gFV > div > div > input', from)
     await page.keyboard.press('Enter');
 
     await page.keyboard.press('Tab');
 
-    await page.keyboard.type(to)
+    await page.keyboard.type(to,{ delay: 20 })
     await page.keyboard.press('Enter')
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Enter')
@@ -192,7 +192,7 @@ const flightScrapper = async (from, to) => {
       }
 
     }
-    await browser.close();
+     browser.close();
 
     return dataObj;
 

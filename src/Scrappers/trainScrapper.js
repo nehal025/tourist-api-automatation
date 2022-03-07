@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer-extra')
+const headless = require('./headless')
 
 // add stealth plugin and use defaults (all evasion techniques)
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
@@ -53,23 +54,23 @@ const tarinsScrapper = async (from, to) => {
     'defaultViewport': { 'width': width, 'height': height },
     ignoreDefaultArgs: ['--enable-automation'],
     args: minimal_args,
-    headless: true
+    headless: headless.headless
   });
 
   const page = await browser.newPage();
   await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
-  await page.setRequestInterception(true);
+  // await page.setRequestInterception(true);
 
 
-  page.on('request', (req) => {
+  // page.on('request', (req) => {
 
-    if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
-      req.abort();
-    } else {
-      req.continue();
-    }
+  //   if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
+  //     req.abort();
+  //   } else {
+  //     req.continue();
+  //   }
  
-  });
+  // });
 
   await page.goto(pageURL);
   await page.waitForSelector('#mat-input-3')

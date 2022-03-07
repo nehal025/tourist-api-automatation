@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer-extra')
+const headless = require('./headless')
 
 // add stealth plugin and use defaults (all evasion techniques)
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
@@ -50,23 +51,23 @@ const placeScrapper = async locationStr => {
       'defaultViewport': { 'width': width, 'height': height },
       ignoreDefaultArgs: ['--enable-automation'],
       args: minimal_args,
-      headless: true
+      headless: headless.headless
 
     });
 
     const page = await browser.newPage();
-    await page.setRequestInterception(true);
+    // await page.setRequestInterception(true);
 
 
-    page.on('request', (req) => {
+    // page.on('request', (req) => {
 
-      if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
-        req.abort();
-      } else {
-        req.continue();
-      }
+    //   if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
+    //     req.abort();
+    //   } else {
+    //     req.continue();
+    //   }
 
-    });
+    // });
     await page.goto('https://www.google.com/travel/');
     await page.type('#oA4zhb', locationStr);
 

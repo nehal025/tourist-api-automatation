@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer-extra')
+const headless = require('../headless')
 
 // add stealth plugin and use defaults (all evasion techniques)
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
@@ -56,7 +57,7 @@ const hotelScrapper = async (locationStr, stars) => {
       'defaultViewport': { 'width': width, 'height': height },
       ignoreDefaultArgs: ['--enable-automation'],
       args: minimal_args,
-      headless: true
+      headless: headless.headless
 
     });
 
@@ -65,18 +66,18 @@ const hotelScrapper = async (locationStr, stars) => {
     await page.setExtraHTTPHeaders({
       'Accept-Language': 'en-US,en;q=0.9'
     });
-    await page.setRequestInterception(true);
+    // await page.setRequestInterception(true);
 
 
-    page.on('request', (req) => {
+    // page.on('request', (req) => {
 
-      if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
-        req.abort();
-      } else {
-        req.continue();
-      }
+    //   if (req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image') {
+    //     req.abort();
+    //   } else {
+    //     req.continue();
+    //   }
 
-    });
+    // });
     let dataObj = [];
     var title, img, location, info, rating, reviews, price, star, booknow;
 
@@ -244,7 +245,8 @@ const hotelScrapper = async (locationStr, stars) => {
 
 
     }
-    browser.close();
+
+     browser.close();
 
     return dataObj;
 
