@@ -178,7 +178,7 @@ router.post('/recommendation', async (req, res) => {
             ).exec()
             const userRec = await userRecommendation.findOne({ verifiedUsername }).lean()
 
-
+console.log(userRec)
             return res.json(userRec)
 
         }

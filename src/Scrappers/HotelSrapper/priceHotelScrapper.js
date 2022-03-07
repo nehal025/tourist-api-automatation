@@ -180,7 +180,28 @@ const hotelScrapper = async (locationStr, stars) => {
             price = Number(price)
             price = price * 70
           }
-
+          if(price<1000){
+            star='1'
+  
+          }
+  
+          if(price>1000 && price<2000){
+            star='2'
+  
+          }
+          if(price>2000 && price<3000){
+            star='3'
+  
+          }
+          if(price>3000 && price<4000){
+            star='4'
+  
+          }
+          if(price>5000 ){
+            star='5'
+  
+          }
+  
 
         });
 
@@ -190,15 +211,15 @@ const hotelScrapper = async (locationStr, stars) => {
         price = null
       }
 
-      try {
-        star = await page.evaluate(
-          (el) => String(el.querySelector('  div._29c344764._f57705597 > div > div:nth-child(1) > div > div > span > div > div').childElementCount),
-          producthandle
-        );
+      // try {
+      //   star = await page.evaluate(
+      //     (el) => String(el.querySelector(' div[class="_bebcf8d60"]').childElementCount),
+      //     producthandle
+      //   );
 
-      } catch (error) {
-        star = "3"
-      }
+      // } catch (error) {
+      //    star = "3"
+      // }
       try {
         booknow = await page.evaluate(
           (el) => el.querySelector(' div._29c344764._f57705597 > div > div > div > h3 > a').getAttribute("href"),

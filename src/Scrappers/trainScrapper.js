@@ -74,11 +74,11 @@ const tarinsScrapper = async (from, to) => {
 
   await page.goto(pageURL);
   await page.waitForSelector('#mat-input-3')
-  await page.type('#mat-input-3', 'kalyan ')
+  await page.type('#mat-input-3', from)
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter')
 
-  await page.type('#mat-input-4', 'pune')
+  await page.type('#mat-input-4',to)
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter')
   await page.click('#trainbtwStation > form > div > div.full-width.flex.mar-hr-8.mar-vr-4.tbs-button-style > button > span')
