@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/userModel');
 const userRecommendation = require('../models/userRecommendation');
+const usersRestaurantsRec = require('../models/usersRestaurantsRec');
 const Recommendation = require('../Recommendation');
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
@@ -38,7 +39,12 @@ router.post('/register', async (req, res) => {
         })
 
         const res = await userRecommendation.create({
-         username: username, _1star: "0", _2star: "0", _3star: "0", _4star: "0", _5star: "0"
+            username: username, _1star: "0", _2star: "0", _3star: "0", _4star: "0", _5star: "0"
+
+        })
+
+        const resRec = await usersRestaurantsRec.create({
+            username: username
 
         })
         console.log('User created successfully: ', response)
@@ -106,7 +112,7 @@ router.post('/login', async (req, res) => {
 
 
 router.post('/logout', async (req, res) => {
-    
+
     const { token } = req.body
     res.status(200)
     res.json({ status: 'ok' })
@@ -152,7 +158,7 @@ router.post('/change-password', async (req, res) => {
 
 router.post('/recommendation', async (req, res) => {
 
-    const { token,_1star, _2star, _3star, _4star, _5star } = req.query
+    const { token, _1star, _2star, _3star, _4star, _5star } = req.query
     if (!token) return res.send('Acess Denied')
 
     let allHotelStar = [_1star, _2star, _3star, _4star, _5star];
@@ -160,7 +166,7 @@ router.post('/recommendation', async (req, res) => {
     try {
         const verified = jwt.verify(token, process.env.JWT_SECRET)
         const verifiedUsername = verified.username
-        const user = await User.findOne({ username:verifiedUsername }).lean()
+        const user = await User.findOne({ username: verifiedUsername }).lean()
 
         if (!user) {
 
@@ -174,11 +180,11 @@ router.post('/recommendation', async (req, res) => {
             userRecommendation.updateOne(
                 { username: user.username },
                 [{ $set: { _1star: _1star, _2star: _2star, _3star: _3star, _4star: _4star, _5star: _5star, recommendation: ans } }]
-                
+
             ).exec()
             const userRec = await userRecommendation.findOne({ verifiedUsername }).lean()
 
-console.log(userRec)
+            console.log(userRec)
             return res.json(userRec)
 
         }
@@ -206,5 +212,80 @@ router.get('/recommendation', async (req, res) => {
 
 
 })
+
+
+router.get('/recommendation/res', async (req, res) => {
+
+    try {
+        const token = req.query.token
+        const user = jwt.verify(token, process.env.JWT_SECRET)
+        const username = user.username
+        const userRec = await usersRestaurantsRec.findOne({ username }).lean()
+        res.json({ category: userRec.recommendation })
+    } catch (error) {
+        res.json({ status: 'error', error: 'something went wrong' })
+
+    }
+
+
+})
+
+router.post('/recommendation/res', async (req, res) => {
+
+    const { token } = req.query
+    const allHotelStar = req.body.category
+    if (!token) return res.send('Acess Denied')
+
+  
+
+
+    try {
+        const verified = jwt.verify(token, process.env.JWT_SECRET)
+        const verifiedUsername = verified.username
+        const user = await User.findOne({ username: verifiedUsername }).lean()
+
+        if (!user) {
+
+            res.status(400)
+            return res.json({ status: 'error', error: 'Invalid username/password' })
+
+        } else {
+
+            if(allHotelStar.length === 0){
+                var selected = [];
+                usersRestaurantsRec.updateOne(
+                    { username: user.username },
+                    [{ $set: { recommendation: selected } }]
+
+    
+                ).exec()
+                const userRec = await usersRestaurantsRec.findOne({ verifiedUsername }).lean()
+                res.json(userRec)
+
+            }else{
+
+                usersRestaurantsRec.updateOne(
+                    { username: user.username },
+                    [{ $set: { recommendation: allHotelStar } }]
+    
+                ).exec()
+    
+                const userRec = await usersRestaurantsRec.findOne({ verifiedUsername }).lean()
+                res.json(userRec)
+        
+            }
+
+
+         
+
+        }
+
+    } catch (error) {
+        console.log(error)
+        return res.json({ status: 'error', error: 'something went wrong' })
+    }
+
+})
+
 
 module.exports = router;

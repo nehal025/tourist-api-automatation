@@ -44,7 +44,7 @@ const minimal_args = [
   '--use-mock-keychain',
 ];
 
-const liveRestarurantScrapper = async locationStr => {
+const liveRestarurantScrapper = async (locationStr, category) => {
   try {
 
 
@@ -121,6 +121,15 @@ const liveRestarurantScrapper = async locationStr => {
           (el) => el.querySelector(' div._3FR5S > div._3Ztcd > div._1gURR').textContent,
           producthandle
         );
+
+        Promise.all([info]).then((values) => {
+          const myArray = info.split(",");
+          info =myArray[0]
+          info = info.replace(' ', '_');     
+          info = info.replace('-', '_');
+          info=info.trim()
+        });
+
       } catch (error) {
         info = 'null'
       }
@@ -144,18 +153,38 @@ const liveRestarurantScrapper = async locationStr => {
 
       location = locationStr;
 
+    
       if (title && img) {
-        dataObj.push(
-          {
-            title,
-            img,
-            location,
-            info,
-            rating,
-            bookNow
+
+        try {
+          if (category.includes(info)) {
+            dataObj.push(
+              {
+                title,
+                img,
+                location,
+                info,
+                rating,
+                bookNow
+              }
+            );
           }
-        );
+        } catch (error) {
+          dataObj.push(
+            {
+              title,
+              img,
+              location,
+              info,
+              rating,
+              bookNow
+            }
+          );
+        }
+  
       }
+       
+      
 
     }
 

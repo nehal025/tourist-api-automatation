@@ -8,13 +8,13 @@ const restarurantScrapper = require("../Scrappers/RestaurantScrapper/restarurant
 router.get('/', async (req, res) => {
 
 	let location = req.query.location;
-	
+
 	var query = {};
 
 	if (location) {
 		query["location"] = location;
 	}
-	
+
 	const q = await Restaurant.find(query);
 
 	console.log("Req from client")
@@ -27,12 +27,36 @@ router.get('/', async (req, res) => {
 router.get('/live', async (req, res) => {
 
 	let location = req.query.location;
-
 	if (location) {
+
 
 		restarurantScrapper(location).then(dataObj => {
 			res.send(dataObj);
 		}).catch(console.error)
+
+	} else {
+		res.send("Please give location")
+	}
+
+});
+router.post('/live', async (req, res) => {
+
+	let location = req.query.location;
+	let category = req.body.category;
+	if (location) {
+
+		if (category.length === 0) {
+			
+			restarurantScrapper(location).then(dataObj => {
+				res.send(dataObj);
+			}).catch(console.error)
+
+		} else {
+
+			restarurantScrapper(location, category).then(dataObj => {
+				res.send(dataObj);
+			}).catch(console.error)
+		}
 
 	} else {
 		res.send("Please give location")
