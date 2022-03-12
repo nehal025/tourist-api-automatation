@@ -1,8 +1,9 @@
+const headless = require('../../config/headless')
+
 const puppeteer = require('puppeteer-extra')
-const headless = require('./headless')
-// add stealth plugin and use defaults (all evasion techniques)
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
+
 const width = 1024;
 const height = 1600;
 

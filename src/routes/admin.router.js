@@ -45,7 +45,7 @@ const adminBro = new AdminJS({
   dashboard: {
     handler: async () => {
     },
-    component: AdminJS.bundle('../Component.jsx')
+    component: AdminJS.bundle('../views/Component.jsx')
   },
 })
 

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Place = require('../models/placeModel');
-const placeScrapper = require("../Scrappers/placeScrapper");
+const placeScrapper = require("../helpers/Scrappers/placeScrapper");
 
 // Get all place
 router.get('/', async (req, res) => {
@@ -25,9 +25,9 @@ router.get('/', async (req, res) => {
 	if (ml) {
 		query["ml"] = ml;
 	}
-	const q = await Place.find(query);
+	const output = await Place.find(query);
 	console.log("Req from client")
-	res.json(q)
+	res.json(output)
 
 });
 

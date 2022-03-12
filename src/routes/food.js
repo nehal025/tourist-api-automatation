@@ -19,9 +19,8 @@ router.get('/', async (req, res) => {
 	if (state) {
 		query["state"] = state;
 	}
-	const q = await Food.find(query);
-	console.log("Req from client")
-	res.json(q)
+	const output = await Food.find(query);
+	res.json(output)
 
 });
 

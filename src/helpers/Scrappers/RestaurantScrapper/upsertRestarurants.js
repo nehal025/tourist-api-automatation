@@ -1,5 +1,5 @@
 //upsert restarunt
-const Restarurant = require("../../models/restarurantModel");
+const Restarurant = require("../../../models/restarurantModel");
 
 const upsertRestarurants = dataObj => {
   try {

@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 const request = require('request');
 
 const cron = require('node-cron');
-const autoHotelScrapper = require("./Scrappers/HotelSrapper/autoHotelScrapper");
-const autoRestarurantScrapper = require("./Scrappers/RestaurantScrapper/autoRestarurantScrapper");
+const autoHotelScrapper = require("./helpers/Scrappers/HotelSrapper/autoHotelScrapper");
+const autoRestarurantScrapper = require("./helpers/Scrappers/RestaurantScrapper/autoRestarurantScrapper");
 
 
 var port = process.env.PORT || 3000;

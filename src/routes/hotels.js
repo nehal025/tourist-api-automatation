@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Hotel = require('../models/hotelModel');
-const hotelScrapper = require("../Scrappers/HotelSrapper/hotelScrapper");
+const hotelScrapper = require("../helpers/Scrappers/HotelSrapper/hotelScrapper");
 
 // Get all Hotels
 router.get('/', async (req, res) => {
@@ -19,9 +19,8 @@ router.get('/', async (req, res) => {
 	
 		}
 
-		const q = await Hotel.find(query);
-		console.log("Req from client")
-		res.send(q)
+		const output = await Hotel.find(query);
+		res.send(output)
 		
 	} catch (error) {
 		

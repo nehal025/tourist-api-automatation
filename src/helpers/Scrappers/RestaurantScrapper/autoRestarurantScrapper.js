@@ -1,4 +1,4 @@
-const restarurantScrapper = require("./restarurantScrapper");
+const restarurantScrapper = require("../RestaurantScrapper/restarurantScrapper");
 const upsertRestarurant = require("./upsertRestarurants");
 
 let RestarurantLocation = [];

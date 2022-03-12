@@ -1,5 +1,5 @@
 
-const Hotel = require("../../models/hotelModel");
+const Hotel = require("../../../models/hotelModel");
 
 const upsertHotels = dataObj => {
   try {

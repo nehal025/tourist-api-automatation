@@ -1,7 +1,6 @@
-const puppeteer = require('puppeteer-extra')
-const headless = require('../headless')
+const headless = require('../../../config/headless')
 
-// add stealth plugin and use defaults (all evasion techniques)
+const puppeteer = require('puppeteer-extra')
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
 
@@ -48,24 +47,18 @@ const minimal_args = [
 
 const hotelScrapper = async (locationStr, stars) => {
 
-  var sum = 0; var avg = 0;
-
   try {
-
 
     const browser = await puppeteer.launch({
       'defaultViewport': { 'width': width, 'height': height },
       ignoreDefaultArgs: ['--enable-automation'],
       args: minimal_args,
       headless: headless.headless
-
     });
 
     const page = await browser.newPage();
     await page.setUserAgent(" (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
-    await page.setExtraHTTPHeaders({
-      'Accept-Language': 'en-US,en;q=0.9'
-    });
+
     // await page.setRequestInterception(true);
 
 
@@ -78,6 +71,8 @@ const hotelScrapper = async (locationStr, stars) => {
     //   }
 
     // });
+
+
     let dataObj = [];
     var title, img, location, info, rating, reviews, price, star, booknow;
 
@@ -105,8 +100,8 @@ const hotelScrapper = async (locationStr, stars) => {
     // console.log(currentDate)
 
     await page.click(`  #frm > div.xp__fieldset.js--sb-fieldset.accommodation > div.xp__dates.xp__group > div.xp-calendar > div > div > div.bui-calendar__content > div > table > tbody > tr > td[data-date="${currentDate}"]`);
-    await page.click(`#frm > div.xp__fieldset.js--sb-fieldset.accommodation > div.xp__button > div.sb-searchbox-submit-col.-submit-button > button`);
 
+    await page.click(`#frm > div.xp__fieldset.js--sb-fieldset.accommodation > div.xp__button > div.sb-searchbox-submit-col.-submit-button > button`);
 
 
     await page.waitForSelector('#search_results_table > div:nth-child(1) > div > div > div > div._814193827 > div[class="_fe1927d9e _0811a1b54 _a8a1be610 _022ee35ec b9c27d6646 fb3c4512b4 fc21746a73"]');
@@ -161,64 +156,60 @@ const hotelScrapper = async (locationStr, stars) => {
         reviews = "null"
       }
 
-      try {
-        price = await page.evaluate(
-          (el) => el.querySelector(" div.c5246b6797._5aba9d433 > span.fde444d7ef._e885fdc12").textContent,
-          producthandle
-        );
+      price = await page.evaluate(
+        (el) => el.querySelector(" div.c5246b6797._5aba9d433 > span.fde444d7ef._e885fdc12").textContent,
+        producthandle
+      );
 
-        Promise.all([price]).then((values) => {
+      Promise.all([price]).then((values) => {
 
-          if (price.charAt(0) === '₹') {
-            price = price.replace('₹', '');
-            price = price.replace(',', '');
-            price = price.trim()
-            price = Number(price)
-          } else {
-            price = price.replace('$', '')
-            price = price.trim()
-            price = Number(price)
-            price = price * 70
-          }
-          if(price<1000){
-            star='1'
-  
-          }
-  
-          if(price>1000 && price<2000){
-            star='2'
-  
-          }
-          if(price>2000 && price<3000){
-            star='3'
-  
-          }
-          if(price>3000 && price<4000){
-            star='4'
-  
-          }
-          if(price>5000 ){
-            star='5'
-  
-          }
-  
+        if (price.charAt(0) === '₹') {
+          price = price.replace('₹', '');
+          price = price.replace(',', '');
+          price = price.trim()
+          price = Number(price)
+        } else {
+          price = price.replace('$', '')
+          price = price.trim()
+          price = Number(price)
+          price = price * 70
+        }
 
-        });
+        if(price<1000){
+          star='1'
+
+        }
+
+        if(price>1000 && price<2000){
+          star='2'
+
+        }
+        if(price>2000 && price<3000){
+          star='3'
+
+        }
+        if(price>3000 && price<4000){
+          star='4'
+
+        }
+        if(price>5000 ){
+          star='5'
+
+        }
 
 
 
-      } catch (error) {
-        price = null
-      }
+      });
 
       // try {
       //   star = await page.evaluate(
-      //     (el) => String(el.querySelector(' div[class="_bebcf8d60"]').childElementCount),
+      //     (el) => String(el.querySelector('div._29c344764._f57705597 > div > div:nth-child(1) > div > div > span > div > div[class="_bebcf8d60"]').childElementCount),
       //     producthandle
       //   );
 
       // } catch (error) {
       //    star = "3"
+      //    console.log("hi")
       // }
       try {
         booknow = await page.evaluate(
@@ -231,7 +222,6 @@ const hotelScrapper = async (locationStr, stars) => {
 
       try {
         if (stars.includes(star)) {
-
           dataObj.push(
             {
               title,
@@ -249,7 +239,6 @@ const hotelScrapper = async (locationStr, stars) => {
       } catch (error) {
         dataObj.push(
           {
-
             title,
             img,
             location,
@@ -266,10 +255,9 @@ const hotelScrapper = async (locationStr, stars) => {
 
 
     }
-
-     browser.close();
-
+    browser.close();
     return dataObj;
+
 
   } catch (e) {
     console.log(e);
@@ -282,3 +270,4 @@ const hotelScrapper = async (locationStr, stars) => {
 };
 
 module.exports = hotelScrapper;
+

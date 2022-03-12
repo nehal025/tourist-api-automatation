@@ -4,9 +4,9 @@ const router = express.Router();
 
 const tf = require("@tensorflow/tfjs-node");
 
-const priceHotelScrapper = require("../Scrappers/HotelSrapper/priceHotelScrapper");
-const flightScrapper = require("../Scrappers/flightScrapper");
-const trainScrapper = require("../Scrappers/trainScrapper");
+const priceHotelScrapper = require("../helpers/Scrappers/HotelSrapper/priceHotelScrapper");
+const flightScrapper = require("../helpers/Scrappers/flightScrapper");
+const trainScrapper = require("../helpers/Scrappers/trainScrapper");
 
 
 router.get("/", async (req, res) => {

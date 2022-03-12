@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Restaurant = require('../models/restarurantModel');
-const restarurantScrapper = require("../Scrappers/RestaurantScrapper/restarurantScrapper");
+const restarurantScrapper = require("../helpers/Scrappers/RestaurantScrapper/restarurantScrapper");
 
 // Get all restarurnt
 router.get('/', async (req, res) => {
@@ -15,11 +15,9 @@ router.get('/', async (req, res) => {
 		query["location"] = location;
 	}
 
-	const q = await Restaurant.find(query);
+	const output = await Restaurant.find(query);
 
-	console.log("Req from client")
-
-	res.json(q)
+	res.json(output)
 
 });
 

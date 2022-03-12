@@ -1,9 +1,9 @@
-const puppeteer = require('puppeteer-extra')
-const headless = require('../headless')
+const headless = require('../../../config/headless')
 
-// add stealth plugin and use defaults (all evasion techniques)
+const puppeteer = require('puppeteer-extra')
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
+
 const width = 1024;
 const height = 1600;
 
@@ -45,6 +45,7 @@ const minimal_args = [
 ];
 
 const liveRestarurantScrapper = async (locationStr, category) => {
+  
   try {
 
 
@@ -81,7 +82,7 @@ const liveRestarurantScrapper = async (locationStr, category) => {
     await page.type('#location', locationStr)
 
     await page.keyboard.press('Enter');
-
+    await page.keyboard.press('ArrowDown');
     await page.waitForSelector('#root > div._3arMG > div.nDVxx > div > div._1TWur > div._2COmU > div > div._3mZgT > div > div._1oLDb > div._3lmRa');
     await page.click('#root > div._3arMG > div.nDVxx > div > div._1TWur > div._2COmU > div > div._3mZgT > div > div._1oLDb > div._3lmRa', { visible: true })
 
