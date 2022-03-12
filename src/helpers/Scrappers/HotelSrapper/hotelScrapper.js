@@ -74,6 +74,7 @@ const hotelScrapper = async (locationStr, stars) => {
 
 
     let dataObj = [];
+    let dataObj2 = [];
     var title, img, location, info, rating, reviews, price, star, booknow;
 
 
@@ -235,6 +236,20 @@ const hotelScrapper = async (locationStr, stars) => {
               booknow
             }
           );
+        }else{
+          dataObj2.push(
+            {
+              title,
+              img,
+              location,
+              info,
+              star,
+              price,
+              rating,
+              reviews,
+              booknow
+            }
+          );
         }
       } catch (error) {
         dataObj.push(
@@ -256,6 +271,8 @@ const hotelScrapper = async (locationStr, stars) => {
 
     }
     browser.close();
+    Array.prototype.push.apply(dataObj,dataObj2); 
+
     return dataObj;
 
 

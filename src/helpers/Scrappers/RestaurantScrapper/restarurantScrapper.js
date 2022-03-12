@@ -72,6 +72,7 @@ const liveRestarurantScrapper = async (locationStr, category) => {
 
     // });
     let dataObj = [];
+    let dataObj2 = [];
     var title, img, location, info, rating, bookNow;
 
 
@@ -169,6 +170,17 @@ const liveRestarurantScrapper = async (locationStr, category) => {
                 bookNow
               }
             );
+          }else{
+            dataObj2.push(
+              {
+                title,
+                img,
+                location,
+                info,
+                rating,
+                bookNow
+              }
+            );
           }
         } catch (error) {
           dataObj.push(
@@ -190,6 +202,7 @@ const liveRestarurantScrapper = async (locationStr, category) => {
     }
 
     browser.close();
+    Array.prototype.push.apply(dataObj,dataObj2); 
 
     return dataObj;
 
