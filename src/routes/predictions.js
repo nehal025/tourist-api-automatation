@@ -11,7 +11,7 @@ const trainScrapper = require("../helpers/Scrappers/trainScrapper");
 
 router.get("/", async (req, res) => {
 
-    const { day, person, star, fromCity, fromDist, toCity, toDist, flightBool, trainBool } = req.query;
+    const { day, person, star, fromCity, toCity, flightBool, trainBool } = req.query;
 
     var hotels;
     var flight;
@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
     mlOutput = model.predict(inputTensor);
     var livingCost = parseInt(mlOutput.dataSync()[0]);
 
-    
+
     try {
         const hotelOutput = priceHotelScrapper(toCity, star)
             .then((dataObj) => {
@@ -48,92 +48,90 @@ router.get("/", async (req, res) => {
             })
             .catch(console.error);
 
-       
-
-            if (flightBool) {
-
-                var flightOutput = flightScrapper(fromCity + " india", toCity + " india")
-                    .then((dataObj) => {
-                        flight = dataObj;
-
-                        dataObj.map((value) => {
-                            flightCostSum = flightCostSum + value.cost;
-                            flightCount++;
-                        });
-                    })
-                    .catch(console.error);
 
 
-            }
+        if (flightBool) {
 
-            if (trainBool) {
+            var flightOutput = flightScrapper(fromCity + " india", toCity + " india")
+                .then((dataObj) => {
+                    flight = dataObj;
 
-                var trainOutput = trainScrapper(fromCity, toCity)
-                    .then((dataObj) => {
-                        train = dataObj;
-
-                        dataObj.map((value) => {
-                            trainCostSum = trainCostSum + value.cost;
-                            trainCount++;
-                        });
-                    })
-                    .catch(console.error);
-
-
-        
-            }
-
-            if (flightBool) {
-                Promise.all([hotelOutput, flightOutput, mlOutput]).then((values) => {
-        
-                    hotelsAvgCost = parseInt(hotelCostSum / hotelCount);
-                    flightAvgCost = parseInt(flightCostSum / flightCount);
-        
-                    let totalCost = livingCost + hotelsAvgCost + flightAvgCost;
-        
-                    res.json({
-                        day,
-                        person,
-                        totalCost,
-                        livingCost,
-                        hotelsAvgCost,
-                        hotels,
-                        flightAvgCost,
-                        flight,
+                    dataObj.map((value) => {
+                        flightCostSum = flightCostSum + value.cost;
+                        flightCount++;
                     });
-        
-        
-        
-                });
-            }
-        
-            if (trainBool) {
-        
-                Promise.all([hotelOutput, trainOutput, mlOutput]).then((values) => {
-        
-                    hotelsAvgCost = parseInt(hotelCostSum / hotelCount);
-                    trainAvgCost = parseInt(trainCostSum / trainCount);
-        
-                    let totalCost = livingCost + hotelsAvgCost + trainAvgCost;
-        
-                    res.json({
-                        day,
-                        person,
-                        totalCost,
-                        livingCost,
-                        hotelsAvgCost,
-                        hotels,
-                        trainAvgCost,
-                        train,
+                })
+                .catch(console.error);
+
+
+        }
+
+        if (trainBool) {
+
+            var trainOutput = trainScrapper(fromCity, toCity)
+                .then((dataObj) => {
+                    train = dataObj;
+
+                    dataObj.map((value) => {
+                        trainCostSum = trainCostSum + value.cost;
+                        trainCount++;
                     });
-        
+                })
+                .catch(console.error);
+
+        }
+
+        if (flightBool) {
+            Promise.all([hotelOutput, flightOutput, mlOutput]).then((values) => {
+
+                hotelsAvgCost = parseInt(hotelCostSum / hotelCount);
+                flightAvgCost = parseInt(flightCostSum / flightCount);
+
+                let totalCost = livingCost + hotelsAvgCost + flightAvgCost;
+
+                res.json({
+                    day,
+                    person,
+                    totalCost,
+                    livingCost,
+                    hotelsAvgCost,
+                    hotels,
+                    flightAvgCost,
+                    flight,
                 });
-            }
-       
+
+
+
+            });
+        }
+
+        if (trainBool) {
+
+            Promise.all([hotelOutput, trainOutput, mlOutput]).then((values) => {
+
+                hotelsAvgCost = parseInt(hotelCostSum / hotelCount);
+                trainAvgCost = parseInt(trainCostSum / trainCount);
+
+                let totalCost = livingCost + hotelsAvgCost + trainAvgCost;
+
+                res.json({
+                    day,
+                    person,
+                    totalCost,
+                    livingCost,
+                    hotelsAvgCost,
+                    hotels,
+                    trainAvgCost,
+                    train,
+                });
+
+            });
+        }
+
 
     } catch (error) {
 
- 
+
     }
 
 
@@ -143,7 +141,7 @@ router.get("/", async (req, res) => {
 
 
 
-   
+
 
 
 });
