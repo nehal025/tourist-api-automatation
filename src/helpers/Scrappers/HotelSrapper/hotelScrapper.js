@@ -105,14 +105,14 @@ const hotelScrapper = async (locationStr, stars) => {
     await page.click(`#frm > div.xp__fieldset.js--sb-fieldset.accommodation > div.xp__button > div.sb-searchbox-submit-col.-submit-button > button`);
 
 
-    await page.waitForSelector('#search_results_table > div:nth-child(1) > div > div > div > div._814193827 > div[class="_fe1927d9e _0811a1b54 _a8a1be610 _022ee35ec b9c27d6646 fb3c4512b4 fc21746a73"]');
-    const productsHandles = await page.$$('#search_results_table > div:nth-child(1) > div > div > div > div._814193827 > div[class="_fe1927d9e _0811a1b54 _a8a1be610 _022ee35ec b9c27d6646 fb3c4512b4 fc21746a73"]');
+    await page.waitForSelector('#search_results_table > div > div > div > div > div.d4924c9e74 > div[data-testid="property-card"]');
+    const productsHandles = await page.$$('#search_results_table > div > div > div > div > div.d4924c9e74 > div[data-testid="property-card"]');
 
     for (const producthandle of productsHandles) {
 
       try {
         title = await page.evaluate(
-          (el) => el.querySelector('div[class="_12369ea61"] > h3 > a > div.fde444d7ef._c445487e2').textContent,
+          (el) => el.querySelector(' h3.a4225678b2 > a > div.fcab3ed991.a23c043802').textContent,
           producthandle
         );
       } catch (error) {
@@ -121,7 +121,7 @@ const hotelScrapper = async (locationStr, stars) => {
 
       try {
         img = await page.evaluate(
-          (el) => el.querySelector('div._5d6c618c8 > div._661592f4c > div > a > img').getAttribute('src'),
+          (el) => el.querySelector('div.f9d4f2568d > div > a > img').getAttribute('src'),
           producthandle
         );
       } catch (error) {
@@ -132,7 +132,7 @@ const hotelScrapper = async (locationStr, stars) => {
 
       try {
         info = await page.evaluate(
-          (el) => el.querySelector(' div._5d6c618c8 > div._7192d3184 > div > div > div > div._704a7d7ac > div > div > div > div._4abc4c3d5 > span').innerText,
+          (el) => el.querySelector(' div.d8eab2cf7f > span').innerText,
           producthandle
         );
       } catch (error) {
@@ -150,7 +150,7 @@ const hotelScrapper = async (locationStr, stars) => {
 
       try {
         reviews = await page.evaluate(
-          (el) => el.querySelector(" div._7192d3184 > div > div> div > div> div > div > div > div > a > span > div > div._f8ff3180e.b8710dea1b > div._4abc4c3d5._1e6021d2f._6e869d6e0").innerText,
+          (el) => el.querySelector(" div.b5cd09854e.d10a6220b4").innerText,
           producthandle
         );
       } catch (error) {
@@ -158,7 +158,7 @@ const hotelScrapper = async (locationStr, stars) => {
       }
 
       price = await page.evaluate(
-        (el) => el.querySelector(" div.c5246b6797._5aba9d433 > span.fde444d7ef._e885fdc12").textContent,
+        (el) => el.querySelector(" div.ca5bcdc79a.e702eddf3f > span").textContent,
         producthandle
       );
 
@@ -214,7 +214,7 @@ const hotelScrapper = async (locationStr, stars) => {
       // }
       try {
         booknow = await page.evaluate(
-          (el) => el.querySelector(' div._29c344764._f57705597 > div > div > div > h3 > a').getAttribute("href"),
+          (el) => el.querySelector(' div[class="dd023375f5"] > h3 > a').getAttribute("href"),
           producthandle
         );
       } catch (error) {

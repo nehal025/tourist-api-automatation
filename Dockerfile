@@ -1,4 +1,5 @@
 FROM node:16.14.0 
+
 WORKDIR /app
 
 RUN  apt-get update \
@@ -16,7 +17,6 @@ RUN  apt-get update \
     && wget --quiet https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh -O /usr/sbin/wait-for-it.sh \
     && chmod +x /usr/sbin/wait-for-it.sh
 
-# Install Puppeteer under /node_modules so it's available system-wide
 ADD package.json package-lock.json /
 RUN npm install 
 COPY . .
